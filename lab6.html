@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaflet Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>Map of US</h1>
+    <div id="map" style="height: 500px;"></div>
+
+    <h2>Marker 1:</h2>
+    <p id="marker1-coords"></p>
+    <p id="marker1-locality"></p>
+
+    <h2>Marker 2:</h2>
+    <p id="marker2-coords"></p>
+    <p id="marker2-locality"></p>
+
+    <h2>Marker 3:</h2>
+    <p id="marker3-coords"></p>
+    <p id="marker3-locality"></p>
+
+    <script>
+        // Set up the map
+        var map = L.map('map').setView([37.8, -96], 4); // Center the map on the US
+
+        // Add a tile layer to the map (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Function to generate random coordinates
+        function getRandomInRange(from, to, fixed) {
+            return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+        }
+
+        // Generate 3 sets of random coordinates
+        let coords1 = { lat: getRandomInRange(30, 35, 3), lon: getRandomInRange(-100, -90, 3) };
+        let coords2 = { lat: getRandomInRange(30, 35, 3), lon: getRandomInRange(-100, -90, 3) };
+        let coords3 = { lat: getRandomInRange(30, 35, 3), lon: getRandomInRange(-100, -90, 3) };
+
+        // Add markers to the map
+        L.marker([coords1.lat, coords1.lon]).addTo(map);
+        L.marker([coords2.lat, coords2.lon]).addTo(map);
+        L.marker([coords3.lat, coords3.lon]).addTo(map);
+
+        // Display the random coordinates
+        document.getElementById('marker1-coords').innerText = `Latitude: ${coords1.lat}, Longitude: ${coords1.lon}`;
+        document.getElementById('marker2-coords').innerText = `Latitude: ${coords2.lat}, Longitude: ${coords2.lon}`;
+        document.getElementById('marker3-coords').innerText = `Latitude: ${coords3.lat}, Longitude: ${coords3.lon}`;
+
+        // Function to get locality from the API and display it
+        function getLocality(coords, markerId) {
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.lat}&longitude=${coords.lon}&localityLanguage=en`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(markerId).innerText = `Locality: ${data.locality}`;
+                })
+                .catch(err => console.log(err));
+        }
+
+        // Get locality for each set of coordinates
+        getLocality(coords1, 'marker1-locality');
+        getLocality(coords2, 'marker2-locality');
+        getLocality(coords3, 'marker3-locality');
+    </script>
+</body>
+</html>
